@@ -1,6 +1,6 @@
 {
   "name": "dsh-warden",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Adversary review gate for DeepSeek Harness: an independent small model reviews destructive tool calls before they run, and reports every verdict.",
   "type": "module",
   "main": "lib/index.js",
