@@ -27,11 +27,19 @@ tools/pre-execute  ->  { kind: 'allow' } | { kind: 'deny', reason } | { kind: 'a
 
 ## 安装
 
+已发布到 npm，装到的是**预构建**版本（`lib/` 是入库的构建产物，不是装的时候现编），不需要授权任何构建脚本：
+
 ```sh
-dsh plugin --profile web add D:\Projects\dsh-warden
+dsh plugin --profile <你的 profile> add dsh-warden
 ```
 
-重启 `dsh web` 后，对话视图里出现「审查」Tab。
+也可以直接从 GitHub 装：
+
+```sh
+dsh plugin --profile <你的 profile> add github:dingchenhui0618-arch/dsh-warden
+```
+
+装好后重启 DSH，对话视图里出现「审查」Tab。（桌面端在应用里安装插件，profile 由应用自己管理，不用手敲上面的命令。）
 
 ## 规则
 
