@@ -65,5 +65,21 @@ jobs:
           fi
           echo "Publishing $pkg"
 
+      # 版本已经发过时不让整条流水线报红：万一某个版本先用本地凭据发出去了，
+      # 之后再补 tag，这一条会命中「已存在」，于是跳过发布，其余检查照跑。
+      # （0.1.1 就是这么发的；等 Trusted Publisher 配好，后续版本走上面的正路。）
+      - name: Check whether this version is already published
+        id: published
+        run: |
+          pkg="dsh-warden@$(node -p "require('./package.json').version")"
+          if npm view "$pkg" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "$pkg 已在 registry 上，跳过发布。"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "$pkg 尚未发布。"
+          fi
+
       - name: Publish
+        if: steps.published.outputs.exists == 'false'
         run: npm publish --provenance --access public
