@@ -53,6 +53,8 @@ dsh plugin --profile <你的 profile> add github:dingchenhui0618-arch/dsh-warden
 - 最近 60 条判定：时间、工具名、风险类别、耗时、实际使用的模型、拦截理由
 - 当前规则来自内置还是文件、文件路径、规则预览
 
+![审查面板：一次真实会话里的计数与判定列表](docs/screenshot-1.png)
+
 ## 审计
 
 每一次**送审**的调用追加一行 JSON 到 `$DSH_HOME/warden-audit.jsonl`（时间、工具、类别、决定、理由、模型、耗时）。未送审的普通调用只进内存环形缓冲，不落盘——否则审计会被普通命令淹掉。
