@@ -1,0 +1,61 @@
+{
+  "name": "dsh-warden",
+  "version": "0.1.0",
+  "description": "Adversary review gate for DeepSeek Harness: an independent small model reviews destructive tool calls before they run, and reports every verdict.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "prepack": "node scripts/build.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ],
+      "platform": "web"
+    }
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "safety",
+    "adversary",
+    "review",
+    "guard"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dingchenhui0618-arch/dsh-warden.git"
+  },
+  "homepage": "https://github.com/dingchenhui0618-arch/dsh-warden#readme",
+  "bugs": {
+    "url": "https://github.com/dingchenhui0618-arch/dsh-warden/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.25.5"
+  }
+}
