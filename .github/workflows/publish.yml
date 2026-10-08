@@ -1,0 +1,69 @@
+name: Publish
+
+# 用 Trusted Publishing（OIDC）发布：仓库里没有任何 NODE_AUTH_TOKEN secret，
+# 也没有 2FA 提示。GitHub 为这次运行签发一次性 OIDC token，npm 拿它对照该包
+# 配置好的 Trusted Publisher 校验，然后只在这一条命令期间给出发布凭据。
+#
+# npm 侧一次性配置（包必须先在 registry 上存在，这个页面才让你配东西）：
+#
+#   https://www.npmjs.com/package/dsh-warden/settings -> Trusted Publisher
+#     Organization or user: dingchenhui0618-arch
+#     Repository:           dsh-warden
+#     Workflow filename:    publish.yml
+#     Environment:          （留空）
+#
+# 注意：npm 已公告 bypass 2FA 的 granular token 正在被限制用于「直接发布」，
+# 所以首次发布之后应尽快切到这条路，而不是长期依赖 .npmrc 里的 token。
+#
+# `id-token: write` 就是全部机制。去掉它，npm 拿不到 OIDC token，会退回去找
+# 静态 token，找不到，运行失败。
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Trusted Publishing 需要 npm CLI 11.5.1+；Node 22 自带 npm 10.x。
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      # lib/ 是构建产物且已入库：这里确认它确实等于 src/ 的构建结果，
+      # 免得发出一个与源码不符的包。
+      - name: Check lib/ matches src/
+        run: |
+          node scripts/build.mjs
+          git diff --exit-code -- lib
+
+      - name: Test
+        run: npm test
+
+      # 防止 package.json 还写着 0.1.0 就打 v0.2.0 的 tag —— npm 会拒，
+      # 这里更早失败并说明原因。
+      - name: Verify the tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          pkg=$(node -p "require('./package.json').version")
+          tag=${GITHUB_REF_NAME#v}
+          if [ "$pkg" != "$tag" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $pkg" >&2
+            exit 1
+          fi
+          echo "Publishing $pkg"
+
+      - name: Publish
+        run: npm publish --provenance --access public
